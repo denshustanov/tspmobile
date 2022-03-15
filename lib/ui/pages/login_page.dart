@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tspmobile/http_client.dart';
+import 'package:tspmobile/ui/pages/home_page.dart';
 import 'package:tspmobile/ui/pages/newsline_page.dart';
+import 'package:tspmobile/ui/pages/registration/registration_page.dart';
 import 'package:tspmobile/ui/widgets/loading_dialog.dart';
 
 class LoginPage extends StatefulWidget {
@@ -71,7 +73,11 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text('New User?'),
-                    TextButton(onPressed: (){}, child: const Text('Create Account'))
+                    TextButton(onPressed: (){
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => RegistrationPage())
+                      );
+                    }, child: const Text('Create Account'))
                   ],
                 ),
               ],
@@ -86,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
     int status = await _httpClient.authorize(usernameController.text, passwordController.text);
     Navigator.of(context).pop();
     if(status == 200){
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => NewslinePage()));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomePage()));
     } else{
       showDialog(context: context, builder: (context) => const AlertDialog(
         content: Text('error'),
