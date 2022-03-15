@@ -5,13 +5,21 @@ import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/model/post.dart';
 import 'package:tspmobile/ui/widgets/user_label.dart';
 
-class PostWidget extends StatelessWidget {
+class PostWidget extends StatefulWidget {
   PostWidget(this.post, this.updateParent);
 
   Function updateParent;
   final Post post;
+
+  @override
+  State<PostWidget> createState() => _PostWidgetState();
+}
+
+class _PostWidgetState extends State<PostWidget> {
   final HttpClient httpClient = HttpClient();
   final DateFormat formatter = DateFormat('yyyy-MM-dd hh:mm');
+
+  int currentImage = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +32,11 @@ class PostWidget extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  userLabel(post.author, context),
+                  userLabel(widget.post.author, context),
                   PopupMenuButton(
                     itemBuilder: (context) {
                       return <PopupMenuEntry>[
-                        if (post.author.username! == httpClient.username) ...[
+                        if (widget.post.author.username! == httpClient.username) ...[
                           PopupMenuItem(
                             child: const Text('Delete post'),
                             onTap: () {
@@ -45,8 +53,8 @@ class PostWidget extends StatelessWidget {
                                               TextButton(
                                                   onPressed: () async {
                                                     await httpClient
-                                                        .deletePost(post.id!);
-                                                    updateParent();
+                                                        .deletePost(widget.post.id!);
+                                                    widget.updateParent();
                                                     Navigator.of(context).pop();
                                                   },
                                                   child: const Text('Ok')),
@@ -75,17 +83,18 @@ class PostWidget extends StatelessWidget {
           Align(
             child: Padding(
               padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-              child: Text(post.text!),
+              child: Text(widget.post.text!),
             ),
             alignment: Alignment.centerLeft,
           ),
-          if (post.attachments != null) ...[
-            if (post.attachments!.isNotEmpty) ...[
+          if (widget.post.attachments != null) ...[
+            if (widget.post.attachments!.isNotEmpty) ...[
               Image.network(httpClient.serverURL +
                   httpClient.getAttachmentEndpoint +
-                  post.attachments!.first),
+                  widget.post.attachments!.first,
+                  headers: {'Authorization': httpClient.getAuthorizationHeader()}),
               DotsIndicator(
-                dotsCount: post.attachments!.length,
+                dotsCount: widget.post.attachments!.length,
                 position: 0,
                 decorator: const DotsDecorator(
                     size: Size.square(5.0), activeSize: Size.square(9.0)),
@@ -101,7 +110,7 @@ class PostWidget extends StatelessWidget {
                     color: Colors.grey,
                   )),
               Text(
-                post.likesCount.toString(),
+                widget.post.likesCount.toString(),
                 style: TextStyle(color: Colors.grey[700]),
               ),
               const SizedBox(
@@ -114,7 +123,7 @@ class PostWidget extends StatelessWidget {
                     color: Colors.grey,
                   )),
               Text(
-                post.commentsCount.toString(),
+                widget.post.commentsCount.toString(),
                 style: TextStyle(color: Colors.grey[700]),
               )
             ],
@@ -122,7 +131,7 @@ class PostWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 8.0, bottom: 3.0),
             child: Text(
-              formatter.format(post.publicationDate!),
+              formatter.format(widget.post.publicationDate!),
               style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
           )
@@ -141,8 +150,8 @@ class PostWidget extends StatelessWidget {
               actions: [
                 TextButton(
                     onPressed: () async {
-                      await httpClient.deletePost(post.id!);
-                      updateParent();
+                      await httpClient.deletePost(widget.post.id!);
+                      widget.updateParent();
                     },
                     child: const Text('Ok')),
                 TextButton(

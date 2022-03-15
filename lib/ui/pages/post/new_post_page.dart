@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -115,10 +116,17 @@ class _NewPostPageState extends State<NewPostPage> {
   }
 
   Future savePost() async {
+    List<String> encodedImages = [];
+
+    for(File image in images){
+      encodedImages.add(base64Encode(await image.readAsBytes()));
+    }
+
     Post post =
-        Post(_postTextController.text, User(), [], 0, 0, DateTime.now());
+        Post(_postTextController.text, User(), encodedImages, 0, 0, DateTime.now());
 
     await _httpClient.createPost(post);
+
 
     Navigator.of(context).pop();
   }

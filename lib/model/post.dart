@@ -30,6 +30,10 @@ class Post {
 
   Map<String, dynamic> toJson() {
     final DateFormat formatter = DateFormat('yyyy-MM-ddThh:mm:ss');
-    return {"text": text, "publicationDate": formatter.format(publicationDate!)};
+    return {
+      "text": text,
+      "publicationDate": formatter.format(publicationDate!),
+      "attachments": attachments
+    };
   }
 }
