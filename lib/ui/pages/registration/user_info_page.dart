@@ -8,6 +8,7 @@ import 'package:tspmobile/ui/pages/newsline_page.dart';
 import 'dart:io';
 
 import 'package:tspmobile/ui/widgets/loading_dialog.dart';
+import 'package:tspmobile/ui/widgets/pick_image.dart';
 
 class UserInfoPage extends StatefulWidget {
   UserInfoPage(this.user);
@@ -107,9 +108,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
   }
 
   Future pickImage() async {
-    final ImagePicker imagePicker = ImagePicker();
-    final XFile? image =
-        await imagePicker.pickImage(source: ImageSource.camera);
+    final XFile? image = await pickSingleImage(context);
     if (image != null) {
       setState(() {
         _image = File(image.path);

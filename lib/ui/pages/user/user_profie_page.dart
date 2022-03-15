@@ -1,8 +1,12 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/model/post.dart';
 import 'package:tspmobile/model/user.dart';
+import 'package:tspmobile/model/user_list.dart';
+import 'package:tspmobile/ui/pages/user/users_list_page.dart';
+import 'package:tspmobile/ui/widgets/pick_image.dart';
 import 'package:tspmobile/ui/widgets/post.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -61,6 +65,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                   children: [
                                     GestureDetector(
                                       child: CircleAvatar(
+                                        backgroundColor: Colors.white,
                                         radius: 30,
                                         backgroundImage: NetworkImage(
                                             _httpClient.serverURL +
@@ -72,6 +77,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                                   .getAuthorizationHeader()
                                             }),
                                       ),
+                                      onTap: () async{
+                                        if(widget.username == _httpClient.username){
+                                          XFile? image = await pickSingleImage(context);
+                                          if(image!=null){
+                                            File imageFile = File(image.path);
+                                            _httpClient.updateUserAvatar(await imageFile.readAsBytes());
+                                            setState(() {});
+                                          }
+                                        }
+                                      },
                                     ),
                                     Column(
                                       children: [
@@ -84,35 +99,41 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                         const Text("Posts")
                                       ],
                                     ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          snapshot.data!.subscribersCount
-                                              .toString(),
-                                          style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        const Text("Subscribers")
-                                      ],
+                                    GestureDetector(
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            snapshot.data!.subscribersCount
+                                                .toString(),
+                                            style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          const Text("Subscribers")
+                                        ],
+                                      ),
+                                      onTap: () => openSubscribers(),
                                     ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          snapshot.data!.subscriptionsCount
-                                              .toString(),
-                                          style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        const Text("Subscriptions")
-                                      ],
+                                    GestureDetector(
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            snapshot.data!.subscriptionsCount
+                                                .toString(),
+                                            style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          const Text("Subscriptions")
+                                        ],
+                                      ),
+                                      onTap: () => openSubscriptions(),
                                     )
                                   ],
                                 ),
                                 if (snapshot.data!.bio != null) ...[
                                   Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                    padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
                                     child: Text(snapshot.data!.bio!,
                                     style: const TextStyle(fontWeight: FontWeight.bold),),
                                   ),
@@ -193,5 +214,21 @@ class _UserProfilePageState extends State<UserProfilePage> {
       _subscribed = subscribed;
       _posts = posts;
     });
+  }
+
+  void openSubscribers()async{
+    List<User> users = await _httpClient.getUserSubscribers(widget.username);
+    UserList userList = UserList(widget.username + '\'s subscribers', users);
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => UserListPage(userList))
+    );
+  }
+
+  void openSubscriptions()async{
+    List<User> users = await _httpClient.getUserSubscriptions(widget.username);
+    UserList userList = UserList(widget.username + '\'s subscriptions', users);
+    Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => UserListPage(userList))
+    );
   }
 }

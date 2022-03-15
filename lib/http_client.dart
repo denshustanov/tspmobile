@@ -183,5 +183,27 @@ class HttpClient {
     return res.body == 'true';
   }
 
+  Future<List<User>> getUserSubscribers(String username) async{
+    Response  res = await get(
+      Uri.parse(serverURL+ '/user/'+ username + '/subscribers'),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+
+    Iterable json = jsonDecode(res.body);
+
+    return List<User>.from(json.map((model) => User.fromJson(model)));
+  }
+
+  Future<List<User>> getUserSubscriptions(String username) async{
+    Response  res = await get(
+      Uri.parse(serverURL+ '/user/'+ username + '/subscriptions'),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+
+    Iterable json = jsonDecode(res.body);
+
+    return List<User>.from(json.map((model) => User.fromJson(model)));
+  }
+
   String get username => _username;
 }

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/model/user.dart';
-import 'package:tspmobile/ui/pages/user_profie_page.dart';
+import 'package:tspmobile/ui/pages/user/user_profie_page.dart';
 
-Widget userLabel(User user, context) {
+Widget userLabel(User user, context, [double radius=10]) {
   final HttpClient httpClient = HttpClient();
   return GestureDetector(
     child: Row(
       children: [
         CircleAvatar(
-          radius: 10,
+          radius: radius,
+          backgroundColor: Colors.white,
           backgroundImage: NetworkImage(
               httpClient.serverURL + '/user/' + user.username! + '/avatar',
               headers: {'Authorization': httpClient.getAuthorizationHeader()}),

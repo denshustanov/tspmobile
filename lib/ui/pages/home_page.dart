@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/ui/pages/newsline_page.dart';
 import 'package:tspmobile/ui/pages/search_page.dart';
-import 'package:tspmobile/ui/pages/user_profie_page.dart';
+import 'package:tspmobile/ui/pages/user/user_profie_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
