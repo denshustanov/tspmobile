@@ -1,3 +1,5 @@
+import 'package:carousel_slider/carousel_options.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -18,8 +20,16 @@ class PostWidget extends StatefulWidget {
 class _PostWidgetState extends State<PostWidget> {
   final HttpClient httpClient = HttpClient();
   final DateFormat formatter = DateFormat('yyyy-MM-dd hh:mm');
+  late PageController _pageController;
 
   int currentImage = 0;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.8);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +46,8 @@ class _PostWidgetState extends State<PostWidget> {
                   PopupMenuButton(
                     itemBuilder: (context) {
                       return <PopupMenuEntry>[
-                        if (widget.post.author.username! == httpClient.username) ...[
+                        if (widget.post.author.username! ==
+                            httpClient.username) ...[
                           PopupMenuItem(
                             child: const Text('Delete post'),
                             onTap: () {
@@ -52,8 +63,8 @@ class _PostWidgetState extends State<PostWidget> {
                                             actions: [
                                               TextButton(
                                                   onPressed: () async {
-                                                    await httpClient
-                                                        .deletePost(widget.post.id!);
+                                                    await httpClient.deletePost(
+                                                        widget.post.id!);
                                                     widget.updateParent();
                                                     Navigator.of(context).pop();
                                                   },
@@ -88,18 +99,49 @@ class _PostWidgetState extends State<PostWidget> {
             alignment: Alignment.centerLeft,
           ),
           if (widget.post.attachments != null) ...[
-            if (widget.post.attachments!.isNotEmpty) ...[
-              Image.network(httpClient.serverURL +
-                  httpClient.getAttachmentEndpoint +
-                  widget.post.attachments!.first,
-                  headers: {'Authorization': httpClient.getAuthorizationHeader()}),
-              DotsIndicator(
-                dotsCount: widget.post.attachments!.length,
-                position: 0,
-                decorator: const DotsDecorator(
-                    size: Size.square(5.0), activeSize: Size.square(9.0)),
+            CarouselSlider(
+              options: CarouselOptions(
+                // height: 200.0,
+                enlargeCenterPage: true,
+                enableInfiniteScroll: false,
+                onPageChanged: (index, reason){
+                  setState(() {
+                    currentImage = index;
+                  });
+                }
               ),
-            ]
+              items: widget.post.attachments!.map<Widget>((i) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(image: NetworkImage(httpClient.serverURL +
+                                httpClient.getAttachmentEndpoint + i,
+                                headers: {
+                                  'Authorization': httpClient.getAuthorizationHeader()
+                                }))));
+                  },
+                );
+              }).toList(),
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List<Widget>.generate(widget.post.attachments!.length, (index){
+                  return Container(
+                    margin: const EdgeInsets.all(3),
+                    width: 5,
+                    height: 5,
+                    decoration: BoxDecoration(
+                        color: currentImage == index ? Colors.black : Colors.black26,
+                        shape: BoxShape.circle),
+                  );
+                }),
+              ),
+            )
+
           ],
           Row(
             children: [
