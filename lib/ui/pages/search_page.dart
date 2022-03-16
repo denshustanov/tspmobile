@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tspmobile/http_client.dart';
+import 'package:tspmobile/model/post.dart';
+import 'package:tspmobile/model/user.dart';
+import 'package:tspmobile/ui/widgets/post.dart';
+import 'package:tspmobile/ui/widgets/user_label.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -9,14 +14,29 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin{
-  late TabController _tabController;
-  TextEditingController _searchController = TextEditingController();
+  late final TabController _tabController;
+  final TextEditingController _searchController = TextEditingController();
+  final HttpClient _httpClient = HttpClient();
 
+  List<User> _foundUsers = [];
+  List<Post> _foundPosts = [];
+
+  String _usersFindString = '';
+  String _postsFindString = '';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if(_tabController.index == 0){
+        _searchController.text = _usersFindString;
+      }
+      else{
+        _searchController.text = _postsFindString;
+      }
+      setState(() {});
+    });
   }
 
   @override
@@ -42,6 +62,24 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin{
               hintText: 'Search...',
                 border: InputBorder.none
             ),
+            onChanged: (value) async{
+              if(_tabController.index == 0) {
+                _usersFindString = value;
+                if (value.isEmpty) {
+                  _foundUsers = [];
+                } else {
+                  _foundUsers = await _httpClient.findUsersByUsername(value);
+                }
+              } else{
+                _postsFindString = value;
+                if (value.isEmpty) {
+                  _foundPosts = [];
+                } else {
+                  _foundPosts = await _httpClient.findPosts(value);
+                }
+              }
+              setState(() {});
+            },
           ),
         ),
         bottom: TabBar(
@@ -51,7 +89,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin{
               text: 'Users',
             ),
             Tab(
-              text: "Publications",
+              text: "Posts",
             )
           ],
         ),
@@ -59,12 +97,19 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin{
       body: TabBarView(
         controller: _tabController,
         children: [
-          const Center(
-            child: Text('users'),
-          ),
-          const Center(
-            child: Text('posts'),
-          ),
+          ListView.builder(
+              itemCount: _foundUsers.length,
+              itemBuilder: (context, index){
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: userLabel(_foundUsers.elementAt(index), context, 20),
+                );
+              }),
+          ListView.builder(
+            itemCount: _foundPosts.length,
+              itemBuilder: (context, index){
+            return PostWidget(_foundPosts.elementAt(index), null);
+          })
         ],
       ),
 

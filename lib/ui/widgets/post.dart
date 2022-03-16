@@ -10,7 +10,7 @@ import 'package:tspmobile/ui/widgets/user_label.dart';
 class PostWidget extends StatefulWidget {
   PostWidget(this.post, this.updateParent);
 
-  Function updateParent;
+  Function? updateParent;
   final Post post;
 
   @override
@@ -65,7 +65,9 @@ class _PostWidgetState extends State<PostWidget> {
                                                   onPressed: () async {
                                                     await httpClient.deletePost(
                                                         widget.post.id!);
-                                                    widget.updateParent();
+                                                    if(widget.updateParent!=null){
+                                                      widget.updateParent!();
+                                                    }
                                                     Navigator.of(context).pop();
                                                   },
                                                   child: const Text('Ok')),
@@ -193,7 +195,9 @@ class _PostWidgetState extends State<PostWidget> {
                 TextButton(
                     onPressed: () async {
                       await httpClient.deletePost(widget.post.id!);
-                      widget.updateParent();
+                      if(widget.updateParent!=null){
+                        widget.updateParent!();
+                      }
                     },
                     child: const Text('Ok')),
                 TextButton(

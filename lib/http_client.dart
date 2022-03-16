@@ -22,6 +22,8 @@ class HttpClient {
 
   final String serverURL = 'http://10.0.2.2:8080';
 
+  final String findUsersEndpoint = '/user/find';
+  final String findPostsEndpoint = '/post/find';
   final String authenticateEndpoint = '/oauth/token';
   final String registerUserEndpoint = '/user/register';
   final String getUserEndpoint = '/user/';
@@ -203,6 +205,27 @@ class HttpClient {
     Iterable json = jsonDecode(res.body);
 
     return List<User>.from(json.map((model) => User.fromJson(model)));
+  }
+
+  Future<List<User>> findUsersByUsername(String username) async{
+    Response  res = await get(
+      Uri.parse(serverURL+ findUsersEndpoint +'?username='+username),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+    Iterable json = jsonDecode(res.body);
+
+    return List<User>.from(json.map((model) => User.fromJson(model)));
+  }
+
+  Future<List<Post>> findPosts(String text) async{
+    Response res = await get(
+      Uri.parse(serverURL + findPostsEndpoint + '?text='+text),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+
+    Iterable json = jsonDecode(res.body);
+
+    return List<Post>.from(json.map((model) => Post.fromJson(model)));
   }
 
   String get username => _username;
