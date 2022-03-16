@@ -116,18 +116,19 @@ class _NewPostPageState extends State<NewPostPage> {
   }
 
   Future savePost() async {
-    List<String> encodedImages = [];
+    if(_postTextController.text.isNotEmpty && images.isNotEmpty) {
+      List<String> encodedImages = [];
 
-    for(File image in images){
-      encodedImages.add(base64Encode(await image.readAsBytes()));
+      for (File image in images) {
+        encodedImages.add(base64Encode(await image.readAsBytes()));
+      }
+
+      Post post =
+      Post(_postTextController.text, User(), encodedImages, 0, 0,
+          DateTime.now());
+
+      await _httpClient.createPost(post);
     }
-
-    Post post =
-        Post(_postTextController.text, User(), encodedImages, 0, 0, DateTime.now());
-
-    await _httpClient.createPost(post);
-
-
     Navigator.of(context).pop();
   }
 

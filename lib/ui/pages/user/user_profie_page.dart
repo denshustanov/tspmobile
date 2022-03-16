@@ -45,16 +45,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
               elevation: 0,
               title: Text(widget.username),
               actions: [
-                Visibility(child: IconButton(
-                  onPressed: (){
+                Visibility(
+                    child: IconButton(
+                  onPressed: () {
                     _httpClient.signOut();
                     _authenticationService.deleteCredentials();
                     Navigator.of(context).popUntil((route) => route.isFirst);
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => const LoginPage())
-                    );
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => const LoginPage()));
                   },
-                  icon: const Icon(Icons.logout, color: Colors.grey,),
+                  icon: const Icon(
+                    Icons.logout,
+                    color: Colors.grey,
+                  ),
                 ))
               ],
             ),
@@ -93,12 +96,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                                   .getAuthorizationHeader()
                                             }),
                                       ),
-                                      onTap: () async{
-                                        if(widget.username == _httpClient.username){
-                                          XFile? image = await pickSingleImage(context);
-                                          if(image!=null){
+                                      onTap: () async {
+                                        if (widget.username ==
+                                            _httpClient.username) {
+                                          XFile? image =
+                                              await pickSingleImage(context);
+                                          if (image != null) {
                                             File imageFile = File(image.path);
-                                            _httpClient.updateUserAvatar(await imageFile.readAsBytes());
+                                            _httpClient.updateUserAvatar(
+                                                await imageFile.readAsBytes());
                                             setState(() {});
                                           }
                                         }
@@ -149,9 +155,29 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 ),
                                 if (snapshot.data!.bio != null) ...[
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
-                                    child: Text(snapshot.data!.bio!,
-                                    style: const TextStyle(fontWeight: FontWeight.bold),),
+                                    padding: const EdgeInsets.only(
+                                        left: 20.0, top: 8.0, bottom: 8.0),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          snapshot.data!.bio!,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        Visibility(
+                                          child: IconButton(
+                                            onPressed: () {},
+                                            icon: const Icon(
+                                              Icons.edit,
+                                              color: Colors.grey,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          visible: widget.username ==
+                                              _httpClient.username,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ],
                                 if (widget.username !=
@@ -232,19 +258,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
     });
   }
 
-  void openSubscribers()async{
+  void openSubscribers() async {
     List<User> users = await _httpClient.getUserSubscribers(widget.username);
     UserList userList = UserList(widget.username + '\'s subscribers', users);
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => UserListPage(userList))
-    );
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => UserListPage(userList)));
   }
 
-  void openSubscriptions()async{
+  void openSubscriptions() async {
     List<User> users = await _httpClient.getUserSubscriptions(widget.username);
     UserList userList = UserList(widget.username + '\'s subscriptions', users);
-    Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => UserListPage(userList))
-    );
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => UserListPage(userList)));
   }
 }

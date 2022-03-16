@@ -84,13 +84,6 @@ class _NewslinePageState extends State<NewslinePage> {
                     return PostWidget(_posts.elementAt(index - 1), loadPosts);
                   }),
             ),
-            if (_posts.isEmpty) ...[
-              IconButton(
-                  onPressed: () {
-                    _refreshIndicatorKey.currentState?.show();
-                  },
-                  icon: const Icon(Icons.refresh))
-            ]
           ],
         ),
       ),
