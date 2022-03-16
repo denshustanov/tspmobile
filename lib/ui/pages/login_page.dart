@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tspmobile/authentication_service.dart';
 import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/ui/pages/home_page.dart';
 import 'package:tspmobile/ui/pages/newsline_page.dart';
@@ -16,11 +17,17 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final HttpClient _httpClient = HttpClient();
+  final AuthenticationService _authenticationService = AuthenticationService();
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
         body:Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -63,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 ElevatedButton(
-                    onPressed: () => _signIn(context),
+                    onPressed: () => _signIn(),
                     child: const Text(
                       'Login',
                       style: TextStyle(color: Colors.white),
@@ -87,11 +94,12 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future _signIn(context) async{
+  Future _signIn() async{
     showLoaderDialog(context);
     int status = await _httpClient.authorize(usernameController.text, passwordController.text);
     Navigator.of(context).pop();
     if(status == 200){
+      _authenticationService.saveCredentials(usernameController.text, passwordController.text);
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomePage()));
     } else{
       showDialog(context: context, builder: (context) => const AlertDialog(

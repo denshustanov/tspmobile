@@ -15,6 +15,9 @@ class HttpClient {
     return _instance;
   }
 
+  // final String _registrationUsername = 'restuser';
+  // final String _registrationPassword = 'restuser';
+
   String _username = 'restuser';
   String _password = 'restuser';
   String? _accessToken;
@@ -226,6 +229,11 @@ class HttpClient {
     Iterable json = jsonDecode(res.body);
 
     return List<Post>.from(json.map((model) => Post.fromJson(model)));
+  }
+
+  Future signOut() async{
+    _accessToken = null;
+    _refreshToken = null;
   }
 
   String get username => _username;

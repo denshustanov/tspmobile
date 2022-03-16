@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tspmobile/authentication_service.dart';
 import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/model/post.dart';
 import 'package:tspmobile/model/user.dart';
 import 'package:tspmobile/model/user_list.dart';
+import 'package:tspmobile/ui/pages/login_page.dart';
 import 'package:tspmobile/ui/pages/user/users_list_page.dart';
 import 'package:tspmobile/ui/widgets/pick_image.dart';
 import 'package:tspmobile/ui/widgets/post.dart';
@@ -20,6 +22,7 @@ class UserProfilePage extends StatefulWidget {
 
 class _UserProfilePageState extends State<UserProfilePage> {
   final HttpClient _httpClient = HttpClient();
+  final AuthenticationService _authenticationService = AuthenticationService();
   bool _subscribed = false;
 
   List<Post> _posts = [];
@@ -41,6 +44,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
               backgroundColor: Colors.transparent,
               elevation: 0,
               title: Text(widget.username),
+              actions: [
+                Visibility(child: IconButton(
+                  onPressed: (){
+                    _httpClient.signOut();
+                    _authenticationService.deleteCredentials();
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const LoginPage())
+                    );
+                  },
+                  icon: const Icon(Icons.logout, color: Colors.grey,),
+                ))
+              ],
             ),
             body: RefreshIndicator(
               onRefresh: () async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tspmobile/authentication_service.dart';
 import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/model/user.dart';
 import 'package:tspmobile/ui/pages/home_page.dart';
@@ -21,6 +22,7 @@ class UserInfoPage extends StatefulWidget {
 
 class _UserInfoPageState extends State<UserInfoPage> {
   final HttpClient _httpClient = HttpClient();
+  final AuthenticationService _authenticationService = AuthenticationService();
   final TextEditingController bioController = TextEditingController();
   File? _image;
 
@@ -87,6 +89,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
     User user = widget.user;
     showLoaderDialog(context);
     Response res = await _httpClient.registerUser(user);
+    _authenticationService.saveCredentials(user.username!, user.password!);
     await _httpClient.authorize(user.username!, user.password!);
 
     if(res.statusCode == 200) {

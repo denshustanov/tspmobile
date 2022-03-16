@@ -101,7 +101,7 @@ class _PostWidgetState extends State<PostWidget> {
             alignment: Alignment.centerLeft,
           ),
           if (widget.post.attachments != null) ...[
-            CarouselSlider(
+            if(widget.post.attachments!.isNotEmpty)...[CarouselSlider(
               options: CarouselOptions(
                 // height: 200.0,
                 enlargeCenterPage: true,
@@ -142,7 +142,7 @@ class _PostWidgetState extends State<PostWidget> {
                   );
                 }),
               ),
-            )
+            )]
 
           ],
           Row(
