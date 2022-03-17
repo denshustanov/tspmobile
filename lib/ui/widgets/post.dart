@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
@@ -116,13 +117,18 @@ class _PostWidgetState extends State<PostWidget> {
                 return Builder(
                   builder: (BuildContext context) {
                     return Container(
-                        width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
-                            image: DecorationImage(image: NetworkImage(httpClient.serverURL +
-                                httpClient.getAttachmentEndpoint + i,
-                                headers: {
-                                  'Authorization': httpClient.getAuthorizationHeader()
-                                }))));
+                          image: DecorationImage(
+                            image: CachedNetworkImageProvider(
+                              httpClient.serverURL + httpClient.getAttachmentEndpoint + i,
+                              headers: {
+                                "Authorization": httpClient.getAuthorizationHeader()
+                              },
+                              // imageRenderMethodForWeb: ImageRenderM
+                            )
+                          )
+                        ),
+                    );
                   },
                 );
               }).toList(),

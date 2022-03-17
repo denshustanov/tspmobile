@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/model/user.dart';
@@ -11,7 +12,7 @@ Widget userLabel(User user, context, [double radius=10]) {
         CircleAvatar(
           radius: radius,
           backgroundColor: Colors.white,
-          backgroundImage: NetworkImage(
+          backgroundImage: CachedNetworkImageProvider(
               httpClient.serverURL + '/user/' + user.username! + '/avatar',
               headers: {'Authorization': httpClient.getAuthorizationHeader()}),
         ),

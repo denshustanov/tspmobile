@@ -23,7 +23,8 @@ class HttpClient {
   String? _accessToken;
   String? _refreshToken;
 
-  final String serverURL = 'http://10.0.2.2:8080';
+  final String serverURL = 'http://192.168.1.13:8080';
+  // final String serverURL = 'http://5.164.153.22:9090/tspserver-0.0.1-SNAPSHOT';
 
   final String findUsersEndpoint = '/user/find';
   final String findPostsEndpoint = '/post/find';

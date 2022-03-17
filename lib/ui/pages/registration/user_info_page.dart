@@ -89,6 +89,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
     User user = widget.user;
     showLoaderDialog(context);
     Response res = await _httpClient.registerUser(user);
+    print(res.body);
     _authenticationService.saveCredentials(user.username!, user.password!);
     await _httpClient.authorize(user.username!, user.password!);
 

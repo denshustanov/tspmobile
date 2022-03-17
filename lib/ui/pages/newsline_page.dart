@@ -44,6 +44,9 @@ class _NewslinePageState extends State<NewslinePage> {
                 curve: Curves.ease);
           },
         ),
+        actions: [
+          IconButton(onPressed: (){}, icon: const Icon(Icons.notifications, color: Colors.grey,))
+        ],
         // leading: const Icon(Icons.account_circle),
         title: const Text('posts'),
         backgroundColor: Colors.transparent,
