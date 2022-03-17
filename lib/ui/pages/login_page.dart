@@ -33,16 +33,19 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Column(
-              children: const [
-                Center(
-                  child: Icon(
-                    Icons.public,
-                    size: 100,
-                    color: Colors.lightBlue,
+              children: [
+                Visibility(
+                  visible: MediaQuery.of(context).viewInsets.bottom==0,
+                  child: const Center(
+                    child: Icon(
+                      Icons.public,
+                      size: 100,
+                      color: Colors.lightBlue,
+                    ),
                   ),
                 ),
-                Text('posts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-                Text('Brand new social network... maybe', style: TextStyle(color: Colors.grey),)
+                const Text('posts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                const Text('Brand new social network... maybe', style: TextStyle(color: Colors.grey),)
               ],
             ),
             Column(

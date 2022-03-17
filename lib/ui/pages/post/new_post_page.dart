@@ -116,7 +116,7 @@ class _NewPostPageState extends State<NewPostPage> {
   }
 
   Future savePost() async {
-    if(_postTextController.text.isNotEmpty && images.isNotEmpty) {
+    if(_postTextController.text.isNotEmpty || images.isNotEmpty) {
       List<String> encodedImages = [];
 
       for (File image in images) {
