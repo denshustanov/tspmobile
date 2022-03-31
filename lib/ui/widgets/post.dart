@@ -6,13 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/model/post.dart';
+import 'package:tspmobile/ui/pages/post/post_comments_page.dart';
 import 'package:tspmobile/ui/widgets/user_label.dart';
 
 class PostWidget extends StatefulWidget {
-  PostWidget(this.post, this.updateParent);
+  PostWidget(this.post, this.updateParent, this.detailed, {Key? key}) : super(key: key);
 
   Function? updateParent;
   final Post post;
+  final bool detailed;
 
   @override
   State<PostWidget> createState() => _PostWidgetState();
@@ -24,7 +26,8 @@ class _PostWidgetState extends State<PostWidget> {
   late PageController _pageController;
 
   int currentImage = 0;
-
+  
+  late final _post = widget.post;
 
   @override
   void initState() {
@@ -43,11 +46,11 @@ class _PostWidgetState extends State<PostWidget> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  userLabel(widget.post.author, context),
+                  userLabel(_post.author, context),
                   PopupMenuButton(
                     itemBuilder: (context) {
                       return <PopupMenuEntry>[
-                        if (widget.post.author.username! ==
+                        if (_post.author.username! ==
                             httpClient.username) ...[
                           PopupMenuItem(
                             child: const Text('Delete post'),
@@ -65,7 +68,7 @@ class _PostWidgetState extends State<PostWidget> {
                                               TextButton(
                                                   onPressed: () async {
                                                     await httpClient.deletePost(
-                                                        widget.post.id!);
+                                                        _post.id!);
                                                     if(widget.updateParent!=null){
                                                       widget.updateParent!();
                                                     }
@@ -97,12 +100,12 @@ class _PostWidgetState extends State<PostWidget> {
           Align(
             child: Padding(
               padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-              child: Text(widget.post.text!),
+              child: Text(_post.text!),
             ),
             alignment: Alignment.centerLeft,
           ),
-          if (widget.post.attachments != null) ...[
-            if(widget.post.attachments!.isNotEmpty)...[CarouselSlider(
+          if (_post.attachments != null) ...[
+            if(_post.attachments!.isNotEmpty)...[CarouselSlider(
               options: CarouselOptions(
                 // height: 200.0,
                 enlargeCenterPage: true,
@@ -113,7 +116,7 @@ class _PostWidgetState extends State<PostWidget> {
                   });
                 }
               ),
-              items: widget.post.attachments!.map<Widget>((i) {
+              items: _post.attachments!.map<Widget>((i) {
                 return Builder(
                   builder: (BuildContext context) {
                     return Container(
@@ -137,7 +140,7 @@ class _PostWidgetState extends State<PostWidget> {
               alignment: Alignment.center,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: List<Widget>.generate(widget.post.attachments!.length, (index){
+                children: List<Widget>.generate(_post.attachments!.length, (index){
                   return Container(
                     margin: const EdgeInsets.all(3),
                     width: 5,
@@ -154,26 +157,30 @@ class _PostWidgetState extends State<PostWidget> {
           Row(
             children: [
               IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
+                  onPressed: () {
+                    _likePost();
+                  },
+                  icon: Icon(
                     Icons.favorite,
-                    color: Colors.grey,
+                    color: (_post.usersLiked.contains(httpClient.username))? Colors.redAccent: Colors.grey,
                   )),
               Text(
-                widget.post.likesCount.toString(),
+                _post.usersLiked.length.toString(),
                 style: TextStyle(color: Colors.grey[700]),
               ),
               const SizedBox(
                 width: 10,
               ),
               IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _showPostComments();
+                  },
                   icon: const Icon(
                     Icons.mode_comment,
                     color: Colors.grey,
                   )),
               Text(
-                widget.post.commentsCount.toString(),
+                _post.comments.length.toString(),
                 style: TextStyle(color: Colors.grey[700]),
               )
             ],
@@ -181,7 +188,7 @@ class _PostWidgetState extends State<PostWidget> {
           Padding(
             padding: const EdgeInsets.only(left: 8.0, bottom: 3.0),
             child: Text(
-              formatter.format(widget.post.publicationDate!),
+              formatter.format(_post.publicationDate!),
               style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
           )
@@ -190,28 +197,31 @@ class _PostWidgetState extends State<PostWidget> {
     );
   }
 
-  Future<void> _deletePost(context) async {
-    await showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) => AlertDialog(
-              title: const Text('Are you sure?'),
-              content: const Text('This post will be lost forever!'),
-              actions: [
-                TextButton(
-                    onPressed: () async {
-                      await httpClient.deletePost(widget.post.id!);
-                      if(widget.updateParent!=null){
-                        widget.updateParent!();
-                      }
-                    },
-                    child: const Text('Ok')),
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("Cancel"))
-              ],
-            ));
+  Future<void> _likePost() async{
+    if(!_post.usersLiked.contains(httpClient.username)){
+      setState(() {
+        _post.usersLiked.add(httpClient.username);
+      });
+      int status = await httpClient.likePost(_post.id!);
+      if(status != 200){
+        _post.usersLiked.remove(httpClient.username);
+      }
+    } else{
+      setState(() {
+        _post.usersLiked.remove(httpClient.username);
+      });
+      int status = await httpClient.unlikePost(_post.id!);
+      if(status != 200){
+        _post.usersLiked.add(httpClient.username);
+      }
+    }
+
+    setState(() {});
+  }
+
+  _showPostComments(){
+    if(!widget.detailed){
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => PostCommentsPage(_post)));
+    }
   }
 }

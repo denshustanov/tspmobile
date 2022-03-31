@@ -84,7 +84,7 @@ class _NewslinePageState extends State<NewslinePage> {
                         ),
                       );
                     }
-                    return PostWidget(_posts.elementAt(index - 1), loadPosts);
+                    return PostWidget(_posts.elementAt(index - 1), loadPosts, false);
                   }),
             ),
           ],

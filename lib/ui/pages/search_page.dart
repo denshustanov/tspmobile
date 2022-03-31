@@ -108,7 +108,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin{
           ListView.builder(
             itemCount: _foundPosts.length,
               itemBuilder: (context, index){
-            return PostWidget(_foundPosts.elementAt(index), null);
+            return PostWidget(_foundPosts.elementAt(index), null, false);
           })
         ],
       ),

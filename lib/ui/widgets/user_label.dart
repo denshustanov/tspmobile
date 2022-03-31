@@ -21,7 +21,7 @@ Widget userLabel(User user, context, [double radius=10]) {
         ),
         Text(
           user.username!,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ],
     ),

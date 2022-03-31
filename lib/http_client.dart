@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart';
+import 'package:tspmobile/model/post_comment.dart';
 
 import 'model/user.dart';
 import 'model/post.dart';
@@ -15,15 +16,15 @@ class HttpClient {
     return _instance;
   }
 
-  // final String _registrationUsername = 'restuser';
-  // final String _registrationPassword = 'restuser';
 
   String _username = 'restuser';
   String _password = 'restuser';
   String? _accessToken;
   String? _refreshToken;
 
-  final String serverURL = 'http://192.168.1.13:8080';
+  // final String serverURL = 'http://10.0.2.2:8080';
+  final String serverURL = 'http://91.222.129.138:65111/tspserver';
+  // final String serverURL = 'http://192.168.1.13:8080';
   // final String serverURL = 'http://5.164.153.22:9090/tspserver-0.0.1-SNAPSHOT';
 
   final String findUsersEndpoint = '/user/find';
@@ -230,6 +231,46 @@ class HttpClient {
     Iterable json = jsonDecode(res.body);
 
     return List<Post>.from(json.map((model) => Post.fromJson(model)));
+  }
+
+  Future<int> likePost(String id) async{
+    Response res = await post(
+      Uri.parse(serverURL + '/post/' + id + '/like'),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+    return res.statusCode;
+  }
+
+  Future<int> unlikePost(String id) async{
+    Response res = await delete(
+      Uri.parse(serverURL + '/post/' + id + '/like'),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+    return res.statusCode;
+  }
+
+  Future<List<PostComment>> getPostComments(String id) async{
+    Response res = await get(
+      Uri.parse(serverURL + '/post/' + id +'/comments'),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+    Iterable json = jsonDecode(res.body);
+
+    return List<PostComment>.from(json.map((e) => PostComment.fromJson(e)));
+  }
+
+  Future<PostComment> createPostComment(PostComment comment) async{
+    Response res = await post(
+      Uri.parse(serverURL + '/post/'+ comment.postId! +'/comment'),
+      headers: <String, String>{
+        'authorization': 'Bearer ' + _accessToken!,
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(comment.toJson())
+    );
+    Map<String, dynamic> json = jsonDecode(res.body);
+
+    return PostComment.fromJson(json);
   }
 
   Future signOut() async{

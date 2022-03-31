@@ -224,7 +224,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             );
                           }
                           return PostWidget(
-                              _posts.elementAt(index - 1), loadPosts);
+                              _posts.elementAt(index - 1), loadPosts, false);
                         }),
                   ),
                 ],

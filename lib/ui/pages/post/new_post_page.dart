@@ -125,7 +125,7 @@ class _NewPostPageState extends State<NewPostPage> {
       }
 
       Post post =
-      Post(_postTextController.text, User(), encodedImages, 0, 0,
+      Post(_postTextController.text, User(), encodedImages,[], [],
           DateTime.now());
 
       await _httpClient.createPost(post);
