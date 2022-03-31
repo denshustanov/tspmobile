@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tspmobile/authentication_service.dart';
@@ -86,7 +87,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                       child: CircleAvatar(
                                         backgroundColor: Colors.white,
                                         radius: 30,
-                                        backgroundImage: NetworkImage(
+                                        backgroundImage: CachedNetworkImageProvider(
                                             _httpClient.serverURL +
                                                 '/user/' +
                                                 widget.username +

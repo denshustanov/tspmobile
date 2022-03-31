@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/model/post.dart';
 import 'package:tspmobile/model/user.dart';
+import 'package:tspmobile/ui/widgets/loading_dialog.dart';
 import 'package:tspmobile/ui/widgets/pick_image.dart';
 import 'dart:io';
 
@@ -118,7 +119,7 @@ class _NewPostPageState extends State<NewPostPage> {
   Future savePost() async {
     if(_postTextController.text.isNotEmpty || images.isNotEmpty) {
       List<String> encodedImages = [];
-
+      showLoaderDialog(context);
       for (File image in images) {
         encodedImages.add(base64Encode(await image.readAsBytes()));
       }
@@ -129,6 +130,7 @@ class _NewPostPageState extends State<NewPostPage> {
 
       await _httpClient.createPost(post);
     }
+    Navigator.of(context).pop();
     Navigator.of(context).pop();
   }
 

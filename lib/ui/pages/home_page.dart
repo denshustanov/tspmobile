@@ -29,7 +29,10 @@ class _HomePageState extends State<HomePage> {
       //   children: pages,
       //   index: _index,
       // ),
-      body: pages.elementAt(_index),
+      body:IndexedStack(
+        children: pages,
+        index: _index,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
         items: const [
