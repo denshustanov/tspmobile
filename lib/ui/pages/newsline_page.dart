@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:tspmobile/http_client.dart';
-import 'package:tspmobile/model/user.dart';
 import 'package:tspmobile/model/post.dart';
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:tspmobile/ui/pages/post/new_post_page.dart';
-import 'package:tspmobile/ui/widgets/new_post_button.dart';
 import 'package:tspmobile/ui/widgets/post.dart';
 
 class NewslinePage extends StatefulWidget {
@@ -76,10 +73,12 @@ class _NewslinePageState extends State<NewslinePage> {
                             style: TextStyle(color: Colors.blueAccent),
                           ),
                           onTap: () async{
-                            await Navigator.of(context).push(
+                            Post? post = await Navigator.of(context).push(
                                 MaterialPageRoute(builder: (context) => const NewPostPage())
                             );
-                            _refreshIndicatorKey.currentState!.show();
+                            if(post!=null){
+                              _posts.insert(0, post);
+                            }
                           },
                         ),
                       );
@@ -99,7 +98,11 @@ class _NewslinePageState extends State<NewslinePage> {
       return b.publicationDate!.compareTo(a.publicationDate!);
     });
     setState(() {
+      _posts = [];
       _posts = posts;
     });
+    // for(Post post in _posts){
+    //   print(post.text);
+    // }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
 Future<XFile?> pickSingleImage(context) async {
@@ -42,13 +43,19 @@ Future<XFile?> pickSingleImage(context) async {
 
   final ImagePicker imagePicker = ImagePicker();
   final XFile? image =
-  await imagePicker.pickImage(source: imageSource);
+  await imagePicker.pickImage(source: imageSource, imageQuality: 25);
   return image;
 }
 
 Future<List<XFile>?> pickMultipleImages() async{
   final ImagePicker imagePicker = ImagePicker();
-  final List<XFile>? images = await imagePicker.pickMultiImage();
+  final List<XFile>? images = await imagePicker.pickMultiImage(imageQuality: 25);
 
   return images;
+}
+
+Future<XFile?> takeImage() async{
+  final ImagePicker imagePicker = ImagePicker();
+  final XFile? image = await imagePicker.pickImage(source: ImageSource.camera, imageQuality: 25);
+  return image;
 }

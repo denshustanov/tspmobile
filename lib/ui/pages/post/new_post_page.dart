@@ -96,10 +96,15 @@ class _NewPostPageState extends State<NewPostPage> {
             ),
             Row(
               children: [
+                IconButton(onPressed: (){
+                  if(images.length<10){
+                    addImages(true);
+                  }
+                }, icon: const Icon(Icons.camera_alt, color: Colors.grey,)),
                 IconButton(
                     onPressed: () {
                       if(images.length<10) {
-                        addImages();
+                        addImages(false);
                       }
                     },
                     icon: const Icon(
@@ -117,6 +122,7 @@ class _NewPostPageState extends State<NewPostPage> {
   }
 
   Future savePost() async {
+    Post? post;
     if(_postTextController.text.isNotEmpty || images.isNotEmpty) {
       List<String> encodedImages = [];
       showLoaderDialog(context);
@@ -124,26 +130,35 @@ class _NewPostPageState extends State<NewPostPage> {
         encodedImages.add(base64Encode(await image.readAsBytes()));
       }
 
-      Post post =
+      post =
       Post(_postTextController.text, User(), encodedImages,[], [],
           DateTime.now());
 
       await _httpClient.createPost(post);
     }
     Navigator.of(context).pop();
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(post);
+
   }
 
-  Future<void> addImages() async {
-    List<XFile>? imageFiles = await pickMultipleImages();
-    if (imageFiles != null) {
-      for (XFile file in imageFiles) {
-        if(images.length>=10){
-          break;
-        }
-        images.add(File(file.path));
+  Future<void> addImages(bool camera) async {
+    if (camera) {
+      XFile? imageFile = await takeImage();
+      if (imageFile != null) {
+        images.add(File(imageFile.path));
+        setState(() {});
       }
-      setState(() {});
+    } else {
+      List<XFile>? imageFiles = await pickMultipleImages();
+      if (imageFiles != null) {
+        for (XFile file in imageFiles) {
+          if (images.length >= 10) {
+            break;
+          }
+          images.add(File(file.path));
+        }
+        setState(() {});
+      }
     }
   }
 }

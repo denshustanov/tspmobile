@@ -10,7 +10,8 @@ import 'package:tspmobile/ui/pages/post/post_comments_page.dart';
 import 'package:tspmobile/ui/widgets/user_label.dart';
 
 class PostWidget extends StatefulWidget {
-  PostWidget(this.post, this.updateParent, this.detailed, {Key? key}) : super(key: key);
+  PostWidget(this.post, this.updateParent, this.detailed, {Key? key})
+      : super(key: key);
 
   Function? updateParent;
   final Post post;
@@ -26,7 +27,7 @@ class _PostWidgetState extends State<PostWidget> {
   late PageController _pageController;
 
   int currentImage = 0;
-  
+
   late final _post = widget.post;
 
   @override
@@ -50,8 +51,7 @@ class _PostWidgetState extends State<PostWidget> {
                   PopupMenuButton(
                     itemBuilder: (context) {
                       return <PopupMenuEntry>[
-                        if (_post.author.username! ==
-                            httpClient.username) ...[
+                        if (_post.author.username! == httpClient.username) ...[
                           PopupMenuItem(
                             child: const Text('Delete post'),
                             onTap: () {
@@ -67,9 +67,10 @@ class _PostWidgetState extends State<PostWidget> {
                                             actions: [
                                               TextButton(
                                                   onPressed: () async {
-                                                    await httpClient.deletePost(
-                                                        _post.id!);
-                                                    if(widget.updateParent!=null){
+                                                    await httpClient
+                                                        .deletePost(_post.id!);
+                                                    if (widget.updateParent !=
+                                                        null) {
                                                       widget.updateParent!();
                                                     }
                                                     Navigator.of(context).pop();
@@ -105,54 +106,63 @@ class _PostWidgetState extends State<PostWidget> {
             alignment: Alignment.centerLeft,
           ),
           if (_post.attachments != null) ...[
-            if(_post.attachments!.isNotEmpty)...[CarouselSlider(
-              options: CarouselOptions(
-                // height: 200.0,
-                enlargeCenterPage: true,
-                enableInfiniteScroll: false,
-                onPageChanged: (index, reason){
-                  setState(() {
-                    currentImage = index;
-                  });
-                }
-              ),
-              items: _post.attachments!.map<Widget>((i) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: CachedNetworkImageProvider(
-                              httpClient.serverURL + httpClient.getAttachmentEndpoint + i,
-                              headers: {
-                                "Authorization": httpClient.getAuthorizationHeader()
-                              },
-                              // imageRenderMethodForWeb: ImageRenderM
-                            )
-                          )
-                        ),
-                    );
-                  },
-                );
-              }).toList(),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List<Widget>.generate(_post.attachments!.length, (index){
-                  return Container(
-                    margin: const EdgeInsets.all(3),
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(
-                        color: currentImage == index ? Colors.black : Colors.black26,
-                        shape: BoxShape.circle),
+            if (_post.attachments!.isNotEmpty) ...[
+              CarouselSlider(
+                options: CarouselOptions(
+                    // height: 200.0,
+                    enlargeCenterPage: true,
+                    enableInfiniteScroll: false,
+                    onPageChanged: (index, reason) {
+                      setState(() {
+                        currentImage = index;
+                      });
+                    }),
+                items: _post.attachments!.map<Widget>((i) {
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return CachedNetworkImage(
+                        imageUrl: httpClient.serverURL +
+                            httpClient.getAttachmentEndpoint +
+                            i +
+                            '?access_token=' +
+                            httpClient.accessToken!,
+                        progressIndicatorBuilder:
+                            (context, url, downloadProgress) =>
+                                Center(
+                                  child: SizedBox(
+                                    height: 30,
+                                    width: 30,
+                                    child: CircularProgressIndicator(
+                                        value: downloadProgress.progress, color: Colors.black, backgroundColor: Colors.grey, strokeWidth: 2,),
+                                  ),
+                                ),
+                        errorWidget: (context, url, error) =>
+                            const Center(child: Text('Unable to load image', style: TextStyle(fontSize: 15, color: Colors.grey),)),
+                      );
+                    },
                   );
-                }),
+                }).toList(),
               ),
-            )]
-
+              Align(
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:
+                      List<Widget>.generate(_post.attachments!.length, (index) {
+                    return Container(
+                      margin: const EdgeInsets.all(3),
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                          color: currentImage == index
+                              ? Colors.black
+                              : Colors.black26,
+                          shape: BoxShape.circle),
+                    );
+                  }),
+                ),
+              )
+            ]
           ],
           Row(
             children: [
@@ -162,7 +172,9 @@ class _PostWidgetState extends State<PostWidget> {
                   },
                   icon: Icon(
                     Icons.favorite,
-                    color: (_post.usersLiked.contains(httpClient.username))? Colors.redAccent: Colors.grey,
+                    color: (_post.usersLiked.contains(httpClient.username))
+                        ? Colors.redAccent
+                        : Colors.grey,
                   )),
               Text(
                 _post.usersLiked.length.toString(),
@@ -197,21 +209,21 @@ class _PostWidgetState extends State<PostWidget> {
     );
   }
 
-  Future<void> _likePost() async{
-    if(!_post.usersLiked.contains(httpClient.username)){
+  Future<void> _likePost() async {
+    if (!_post.usersLiked.contains(httpClient.username)) {
       setState(() {
         _post.usersLiked.add(httpClient.username);
       });
       int status = await httpClient.likePost(_post.id!);
-      if(status != 200){
+      if (status != 200) {
         _post.usersLiked.remove(httpClient.username);
       }
-    } else{
+    } else {
       setState(() {
         _post.usersLiked.remove(httpClient.username);
       });
       int status = await httpClient.unlikePost(_post.id!);
-      if(status != 200){
+      if (status != 200) {
         _post.usersLiked.add(httpClient.username);
       }
     }
@@ -219,9 +231,10 @@ class _PostWidgetState extends State<PostWidget> {
     setState(() {});
   }
 
-  _showPostComments(){
-    if(!widget.detailed){
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => PostCommentsPage(_post)));
+  _showPostComments() {
+    if (!widget.detailed) {
+      Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => PostCommentsPage(_post)));
     }
   }
 }

@@ -279,4 +279,6 @@ class HttpClient {
   }
 
   String get username => _username;
+
+  String? get accessToken => _accessToken;
 }
