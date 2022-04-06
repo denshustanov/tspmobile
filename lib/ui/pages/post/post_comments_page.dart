@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:tspmobile/http_client.dart';
 import 'package:tspmobile/model/post.dart';
 import 'package:tspmobile/model/post_comment.dart';
+import 'package:tspmobile/ui/widgets/loading_dialog.dart';
 import 'package:tspmobile/ui/widgets/post.dart';
 import 'package:tspmobile/ui/widgets/user_label.dart';
 
@@ -41,17 +42,42 @@ class _PostCommentsPageState extends State<PostCommentsPage> {
                   PostWidget(_post, null, true),
                   for (PostComment comment in _post.comments) ...[
                     Padding(
-                      padding: const EdgeInsets.only(top: 8.0, left: 8.0, bottom: 16.0),
+                      padding: const EdgeInsets.only(
+                          top: 8.0, left: 8.0, bottom: 8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          userLabel(comment.author!, context),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              userLabel(comment.author!, context),
+                              PopupMenuButton(itemBuilder: (context) {
+                                return <PopupMenuEntry>[
+                                  if (_post.author.username! ==
+                                          _httpClient.username ||
+                                      comment.author!.username ==
+                                          _httpClient.username) ...[
+                                    PopupMenuItem(
+                                      child: const Text('Delete'),
+                                      onTap: () async {
+                                        await _deleteComment(comment);
+                                      },
+                                    )
+                                  ]
+                                ];
+                              })
+                            ],
+                          ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 30.0),
+                            padding:
+                                const EdgeInsets.only(left: 30.0, bottom: 8.0),
                             child: Text(comment.text),
                           ),
-                          Text(formatter.format(comment.publicationDate),
-                          style: const TextStyle(fontSize: 10, color: Colors.grey),)
+                          Text(
+                            formatter.format(comment.publicationDate),
+                            style: const TextStyle(
+                                fontSize: 10, color: Colors.grey),
+                          )
                         ],
                       ),
                     )
@@ -100,15 +126,24 @@ class _PostCommentsPageState extends State<PostCommentsPage> {
   }
 
   Future _createComment() async {
-    PostComment comment =
-        PostComment(_commentController.text, _post.id!, null, DateTime.now());
+    PostComment comment = PostComment(
+        _commentController.text, _post.id!, null, DateTime.now(), '');
     _commentController.text = '';
     commentTextFocus.unfocus();
     comment = await _httpClient.createPostComment(comment);
-    // if (status == 200) {
+    setState(() {
+      _post.comments.add(comment);
+    });
+  }
+
+  Future _deleteComment(PostComment comment) async {
+    showLoaderDialog(context);
+    final int status = await _httpClient.deleteComment(comment);
+    Navigator.of(context).pop();
+    if (status == 200) {
       setState(() {
-        _post.comments.add(comment);
+        _post.comments.remove(comment);
       });
-    // }
+    }
   }
 }

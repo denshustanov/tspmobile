@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "482661382459",
+    "project_id": "tspserver",
+    "storage_bucket": "tspserver.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:482661382459:android:754e6e4e7fb72135e6df1e",
+        "android_client_info": {
+          "package_name": "com.example.tspmobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "482661382459-0u3ejetcrbn1js1u9mfeo9fcqt7hkrku.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBB709rdJfaxEkUXA42e7yYEOhemEKWYSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "482661382459-0u3ejetcrbn1js1u9mfeo9fcqt7hkrku.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tspmobile/authentication_service.dart';
 import 'package:tspmobile/http_client.dart';
@@ -103,6 +104,10 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.of(context).pop();
     if(status == 200){
       _authenticationService.saveCredentials(usernameController.text, passwordController.text);
+      String? token = await FirebaseMessaging.instance.getToken();
+      if(token!=null){
+        _httpClient.createFcmToken(token);
+      }
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomePage()));
     } else{
       showDialog(context: context, builder: (context) => const AlertDialog(

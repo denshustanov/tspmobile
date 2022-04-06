@@ -86,7 +86,12 @@ class _PostWidgetState extends State<PostWidget> {
                             },
                           )
                         ] else ...[
-                          const PopupMenuItem(child: Text('complain')),
+                          PopupMenuItem(
+                            child: const Text('complain'),
+                            onTap: () async {
+                              await _complainOnPost();
+                            },
+                          ),
                         ]
                       ];
                     },
@@ -95,7 +100,6 @@ class _PostWidgetState extends State<PostWidget> {
                       color: Colors.grey,
                     ),
                   ),
-                  // IconButton(onPressed: (){}, icon: const Icon(Icons.more_vert, color: Colors.grey,))
                 ],
               )),
           Align(
@@ -127,17 +131,23 @@ class _PostWidgetState extends State<PostWidget> {
                             '?access_token=' +
                             httpClient.accessToken!,
                         progressIndicatorBuilder:
-                            (context, url, downloadProgress) =>
-                                Center(
-                                  child: SizedBox(
-                                    height: 30,
-                                    width: 30,
-                                    child: CircularProgressIndicator(
-                                        value: downloadProgress.progress, color: Colors.black, backgroundColor: Colors.grey, strokeWidth: 2,),
-                                  ),
-                                ),
-                        errorWidget: (context, url, error) =>
-                            const Center(child: Text('Unable to load image', style: TextStyle(fontSize: 15, color: Colors.grey),)),
+                            (context, url, downloadProgress) => Center(
+                          child: SizedBox(
+                            height: 30,
+                            width: 30,
+                            child: CircularProgressIndicator(
+                              value: downloadProgress.progress,
+                              color: Colors.black,
+                              backgroundColor: Colors.grey,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => const Center(
+                            child: Text(
+                          'Unable to load image',
+                          style: TextStyle(fontSize: 15, color: Colors.grey),
+                        )),
                       );
                     },
                   );
@@ -235,6 +245,82 @@ class _PostWidgetState extends State<PostWidget> {
     if (!widget.detailed) {
       Navigator.of(context).push(
           MaterialPageRoute(builder: (context) => PostCommentsPage(_post)));
+    }
+  }
+
+  _complainOnPost() async {
+    bool complain = false;
+    String cause = '';
+    await Future<void>.delayed(
+        const Duration(), // OR const Duration(milliseconds: 500),
+        () => showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: const Text('Complain on post'),
+                  content: SizedBox(
+                    height: 157,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: GestureDetector(
+                            child: const Text('Spam'),
+                            onTap: () {
+                              complain = true;
+                              cause = 'SPAM';
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: GestureDetector(
+                            child: const Text('Fraud'),
+                            onTap: () {
+                              complain = true;
+                              cause = 'FRAUD';
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: GestureDetector(
+                            child: const Text('Violent content'),
+                            onTap: () {
+                              complain = true;
+                              cause = 'VIOLENT';
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: GestureDetector(
+                            child: const Text('Adult content'),
+                            onTap: () {
+                              complain = true;
+                              cause = 'ADULT';
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                        GestureDetector(
+                          child: const Text('Abuse'),
+                          onTap: () {
+                            complain = true;
+                            cause = 'ABUSE';
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+                )));
+    if(complain){
+      httpClient.createPostComplaint(_post.id!, cause);
     }
   }
 }

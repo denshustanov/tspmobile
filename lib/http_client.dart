@@ -16,14 +16,14 @@ class HttpClient {
     return _instance;
   }
 
-
   String _username = 'restuser';
   String _password = 'restuser';
   String? _accessToken;
   String? _refreshToken;
 
-  // final String serverURL = 'http://10.0.2.2:8080';
-  final String serverURL = 'http://91.222.129.138:65111/tspserver';
+  final String serverURL = 'http://10.0.2.2:8080';
+
+  // final String serverURL = 'http://91.222.129.138:65111/tspserver';
   // final String serverURL = 'http://192.168.1.13:8080';
   // final String serverURL = 'http://5.164.153.22:9090/tspserver-0.0.1-SNAPSHOT';
 
@@ -53,6 +53,11 @@ class HttpClient {
     return res.statusCode;
   }
 
+  Future createFcmToken(String token) async {
+    await post(Uri.parse(serverURL + '/user/fcm-token?token=' + token),
+        headers: <String, String>{'authorization': 'Bearer ' + _accessToken!});
+  }
+
   Future<Response> registerUser(User user) async {
     await authorize('restuser', 'restuser');
 
@@ -75,27 +80,25 @@ class HttpClient {
     return res.body == 'true';
   }
 
-  Future<int> updateUserAvatar(List<int> avatar) async{
+  Future<int> updateUserAvatar(List<int> avatar) async {
     Response res = await put(
         Uri.parse(serverURL + '/user/' + _username + '/avatar'),
         headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
-        body: avatar
-    );
+        body: avatar);
 
     return res.statusCode;
   }
 
-  Future<int> updateUserBio(String bio) async{
+  Future<int> updateUserBio(String bio) async {
     Response res = await put(
         Uri.parse(serverURL + '/user/' + _username + '/bio'),
         headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
-        body: bio
-    );
+        body: bio);
 
     return res.statusCode;
   }
 
-  Future<Uint8List> getUserAvatar(String username) async{
+  Future<Uint8List> getUserAvatar(String username) async {
     Response res = await get(
       Uri.parse(serverURL + '/user/' + username + '/avatar'),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
@@ -104,13 +107,13 @@ class HttpClient {
     return res.bodyBytes;
   }
 
-  String getAuthorizationHeader(){
+  String getAuthorizationHeader() {
     return 'Bearer ' + _accessToken!;
   }
 
-  Future<List<Post>> loadPosts() async{
+  Future<List<Post>> loadPosts() async {
     Response res = await get(
-      Uri.parse(serverURL + '/post/all'),
+      Uri.parse(serverURL + '/post/newsline?offset=0'),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
     );
 
@@ -118,23 +121,21 @@ class HttpClient {
 
     return List<Post>.from(json.map((model) => Post.fromJson(model)));
   }
-  
-  Future<int> createPost(Post _post) async{
-    Response res = await post(
-      Uri.parse(serverURL + createPostEndpoint),
-      headers: <String, String>{
-        'authorization': 'Bearer ' + _accessToken!,
-        'Content-type': 'application/json'
-      },
-      body: jsonEncode(_post.toJson())
-    );
-    
+
+  Future<int> createPost(Post _post) async {
+    Response res = await post(Uri.parse(serverURL + createPostEndpoint),
+        headers: <String, String>{
+          'authorization': 'Bearer ' + _accessToken!,
+          'Content-type': 'application/json'
+        },
+        body: jsonEncode(_post.toJson()));
+
     return res.statusCode;
   }
 
-  Future<User> getUser(String username) async{
+  Future<User> getUser(String username) async {
     Response res = await get(
-      Uri.parse(serverURL + '/user/'+username),
+      Uri.parse(serverURL + '/user/' + username),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
     );
 
@@ -143,9 +144,9 @@ class HttpClient {
     return User.fromJson(json);
   }
 
-  Future<List<Post>> loadUserPosts(String username) async{
+  Future<List<Post>> loadUserPosts(String username) async {
     Response res = await get(
-      Uri.parse(serverURL + '/user/'+username+'/posts'),
+      Uri.parse(serverURL + '/user/' + username + '/posts'),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
     );
 
@@ -153,78 +154,78 @@ class HttpClient {
 
     return List<Post>.from(json.map((model) => Post.fromJson(model)));
   }
-  
-  Future deletePost(String id) async{
+
+  Future deletePost(String id) async {
     await delete(
       Uri.parse(serverURL + '/post/' + id),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
     );
   }
-  
-  Future subscribe(String username) async{
-    String params = '?subscriber='+_username+'&subscription='+username;
+
+  Future subscribe(String username) async {
+    String params = '?subscriber=' + _username + '&subscription=' + username;
 
     await post(
-      Uri.parse(serverURL+ '/subscription'+ params),
-        headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
-    );
-  }
-
-  Future unsubscribe(String username) async{
-    String params = '?subscriber='+_username+'&subscription='+username;
-
-    await delete(
-      Uri.parse(serverURL+ '/subscription'+ params),
+      Uri.parse(serverURL + '/subscription' + params),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
     );
   }
 
-  Future<bool> checkSubscription(String username) async{
-    String params = '?subscriber='+_username+'&subscription='+username;
+  Future unsubscribe(String username) async {
+    String params = '?subscriber=' + _username + '&subscription=' + username;
 
-    Response  res = await get(
-      Uri.parse(serverURL+ '/subscription'+ params),
+    await delete(
+      Uri.parse(serverURL + '/subscription' + params),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+  }
+
+  Future<bool> checkSubscription(String username) async {
+    String params = '?subscriber=' + _username + '&subscription=' + username;
+
+    Response res = await get(
+      Uri.parse(serverURL + '/subscription' + params),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
     );
 
     return res.body == 'true';
   }
 
-  Future<List<User>> getUserSubscribers(String username) async{
-    Response  res = await get(
-      Uri.parse(serverURL+ '/user/'+ username + '/subscribers'),
-      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
-    );
-
-    Iterable json = jsonDecode(res.body);
-
-    return List<User>.from(json.map((model) => User.fromJson(model)));
-  }
-
-  Future<List<User>> getUserSubscriptions(String username) async{
-    Response  res = await get(
-      Uri.parse(serverURL+ '/user/'+ username + '/subscriptions'),
-      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
-    );
-
-    Iterable json = jsonDecode(res.body);
-
-    return List<User>.from(json.map((model) => User.fromJson(model)));
-  }
-
-  Future<List<User>> findUsersByUsername(String username) async{
-    Response  res = await get(
-      Uri.parse(serverURL+ findUsersEndpoint +'?username='+username),
-      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
-    );
-    Iterable json = jsonDecode(res.body);
-
-    return List<User>.from(json.map((model) => User.fromJson(model)));
-  }
-
-  Future<List<Post>> findPosts(String text) async{
+  Future<List<User>> getUserSubscribers(String username) async {
     Response res = await get(
-      Uri.parse(serverURL + findPostsEndpoint + '?text='+text),
+      Uri.parse(serverURL + '/user/' + username + '/subscribers'),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+
+    Iterable json = jsonDecode(res.body);
+
+    return List<User>.from(json.map((model) => User.fromJson(model)));
+  }
+
+  Future<List<User>> getUserSubscriptions(String username) async {
+    Response res = await get(
+      Uri.parse(serverURL + '/user/' + username + '/subscriptions'),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+
+    Iterable json = jsonDecode(res.body);
+
+    return List<User>.from(json.map((model) => User.fromJson(model)));
+  }
+
+  Future<List<User>> findUsersByUsername(String username) async {
+    Response res = await get(
+      Uri.parse(serverURL + findUsersEndpoint + '?username=' + username),
+      headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
+    );
+    Iterable json = jsonDecode(res.body);
+
+    return List<User>.from(json.map((model) => User.fromJson(model)));
+  }
+
+  Future<List<Post>> findPosts(String text) async {
+    Response res = await get(
+      Uri.parse(serverURL + findPostsEndpoint + '?text=' + text),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
     );
 
@@ -233,7 +234,7 @@ class HttpClient {
     return List<Post>.from(json.map((model) => Post.fromJson(model)));
   }
 
-  Future<int> likePost(String id) async{
+  Future<int> likePost(String id) async {
     Response res = await post(
       Uri.parse(serverURL + '/post/' + id + '/like'),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
@@ -241,7 +242,7 @@ class HttpClient {
     return res.statusCode;
   }
 
-  Future<int> unlikePost(String id) async{
+  Future<int> unlikePost(String id) async {
     Response res = await delete(
       Uri.parse(serverURL + '/post/' + id + '/like'),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
@@ -249,9 +250,9 @@ class HttpClient {
     return res.statusCode;
   }
 
-  Future<List<PostComment>> getPostComments(String id) async{
+  Future<List<PostComment>> getPostComments(String id) async {
     Response res = await get(
-      Uri.parse(serverURL + '/post/' + id +'/comments'),
+      Uri.parse(serverURL + '/post/' + id + '/comments'),
       headers: <String, String>{'authorization': 'Bearer ' + _accessToken!},
     );
     Iterable json = jsonDecode(res.body);
@@ -259,21 +260,42 @@ class HttpClient {
     return List<PostComment>.from(json.map((e) => PostComment.fromJson(e)));
   }
 
-  Future<PostComment> createPostComment(PostComment comment) async{
+  Future<PostComment> createPostComment(PostComment comment) async {
     Response res = await post(
-      Uri.parse(serverURL + '/post/'+ comment.postId! +'/comment'),
-      headers: <String, String>{
-        'authorization': 'Bearer ' + _accessToken!,
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode(comment.toJson())
-    );
+        Uri.parse(serverURL + '/post/' + comment.postId! + '/comment'),
+        headers: <String, String>{
+          'authorization': 'Bearer ' + _accessToken!,
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode(comment.toJson()));
     Map<String, dynamic> json = jsonDecode(res.body);
 
     return PostComment.fromJson(json);
   }
 
-  Future signOut() async{
+  Future<int> deleteComment(PostComment comment) async {
+    Response res = await delete(
+        Uri.parse(serverURL + '/post/comment?id=' + comment.id),
+        headers: <String, String>{
+          'authorization': 'Bearer ' + _accessToken!,
+        });
+
+    return res.statusCode;
+  }
+
+  Future createPostComplaint(String postId, String complaintCause) async {
+    await post(
+        Uri.parse(serverURL +
+            '/post/' +
+            postId +
+            '/complain?cause=' +
+            complaintCause),
+        headers: <String, String>{
+          'authorization': 'Bearer ' + _accessToken!,
+        });
+  }
+
+  Future signOut() async {
     _accessToken = null;
     _refreshToken = null;
   }
